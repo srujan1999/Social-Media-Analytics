@@ -16,7 +16,7 @@ nltk.download('vader_lexicon', quiet=True)
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
-endChars = [ " ", "\n", "#", ".", ",", "?", "!", ":", ";", ")" ]
+endChars = [ " ", "\n", "#", ".", ",", "?", "!", ":", ";", ")" ] 
 
 '''
 makeDataFrame(filename)
@@ -106,7 +106,8 @@ Parameters: dataframe ; str
 Returns: str
 '''
 def getRegionFromState(stateDf, state):
-    return
+    r=stateDf.loc[stateDf['state'] == state, 'region']
+    return r.values[0]
 
 
 '''
@@ -300,7 +301,8 @@ if __name__ == "__main__":
     # test.testParseName()
     # test.testParsePosition()
     # test.testParseState()
-    test.testFindHashtags()
+    #test.testFindHashtags()
+    test.testGetRegionFromState()
     ## Uncomment these for Week 2 ##
     """print("\n" + "#"*15 + " WEEK 2 TESTS " +  "#" * 16 + "\n")
     test.week2Tests()
