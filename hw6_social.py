@@ -16,7 +16,7 @@ nltk.download('vader_lexicon', quiet=True)
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
-endChars = [ " ", "\n", "#", ".", ",", "?", "!", ":", ";", ")" ]
+endChars = [ " ", "\n", "#", ".", ",", "?", "!", ":", ";", ")" ] 
 
 '''
 makeDataFrame(filename)
@@ -25,8 +25,8 @@ Parameters: str
 Returns: dataframe
 '''
 def makeDataFrame(filename):
-    return
-
+    df=pd.read_csv(filename)
+    return df
 
 '''
 parseName(fromString)
@@ -35,7 +35,13 @@ Parameters: str
 Returns: str
 '''
 def parseName(fromString):
-    return
+    for line in fromString.split("\n"):
+        start = line.find(":") 
+        line = line[start+1:]
+        end = line.find(" (")
+        line = line[:end]
+        line = line.strip()
+    return line
 
 
 '''
@@ -45,7 +51,13 @@ Parameters: str
 Returns: str
 '''
 def parsePosition(fromString):
-    return
+    for line in fromString.split("\n"):
+        start = line.find("(") 
+        line = line[start+1:]
+        end = line.find(" from")
+        line = line[:end]
+        line = line.strip()
+    return line
 
 
 '''
@@ -55,7 +67,13 @@ Parameters: str
 Returns: str
 '''
 def parseState(fromString):
-    return
+    for line in fromString.split("\n"):
+        start = line.find("from ") + len("from")
+        line = line[start:]
+        end = line.find(")")
+        line = line[:end]
+        line = line.strip()
+    return line
 
 
 '''
@@ -65,7 +83,20 @@ Parameters: str
 Returns: list of strs
 '''
 def findHashtags(message):
-    return
+    # import re
+    # return re.findall(r'#\w+', message)
+    new=message.split("#")
+    l1=[]
+    for i in new[1:]:
+        s=""
+        for j in i:
+            if j not in endChars:
+                s+=j
+            else:
+                break
+        l1.append('#'+s)
+
+    return l1
 
 
 '''
@@ -75,7 +106,8 @@ Parameters: dataframe ; str
 Returns: str
 '''
 def getRegionFromState(stateDf, state):
-    return
+    r=stateDf.loc[stateDf['state'] == state, 'region']
+    return r.values[0]
 
 
 '''
@@ -85,6 +117,23 @@ Parameters: dataframe ; dataframe
 Returns: None
 '''
 def addColumns(data, stateDf):
+    names=[]
+    positions=[]
+    states=[]
+    regions=[]
+    hashtags=[]
+    for i,r in data.iterrows():
+        names.append(parseName(r["label"]))
+        positions.append(parsePosition(r["label"]))
+        states.append(parseState(r["label"]))
+        regions.append(getRegionFromState(stateDf, parseState(r["label"])))
+        hashtags.append(findHashtags(r["text"]))
+    data['name']=names
+    data['position']=positions
+    data['state']=states
+    data['region']=regions
+    data['hashtags']=hashtags
+
     return
 
 
@@ -98,7 +147,12 @@ Returns: str
 '''
 def findSentiment(classifier, message):
     score = classifier.polarity_scores(message)['compound']
-    return
+    if score< -0.1:
+        return "negative"
+    elif score> 0.1:
+        return "positive"
+    else:
+        return "neutral"
 
 
 '''
@@ -109,6 +163,8 @@ Returns: None
 '''
 def addSentimentColumn(data):
     classifier = SentimentIntensityAnalyzer()
+    sen=[findSentiment(classifier, r["text"]) for i,r in data.iterrows()]
+    data['sentiment']=sen
     return
 
 
@@ -119,7 +175,19 @@ Parameters: dataframe ; str ; str
 Returns: dict mapping strs to ints
 '''
 def getDataCountByState(data, colName, dataToCount):
-    return
+    dicts={}
+    if len(colName)!=0 and len(dataToCount)!=0:
+        for i,r in data.iterrows():
+            if r[colName]==dataToCount:
+                if r["state"] not in dicts:
+                    dicts[r["state"]]=0
+                dicts[r["state"]]+=1
+    if len(colName)==0 or len(dataToCount)==0:
+        for i,r in data.iterrows():
+            if r["state"] not in dicts:
+                dicts[r["state"]]=0
+            dicts[r["state"]]+=1
+    return dicts
 
 
 '''
@@ -129,7 +197,16 @@ Parameters: dataframe ; str
 Returns: dict mapping strs to (dicts mapping strs to ints)
 '''
 def getDataForRegion(data, colName):
-    return
+    dicts={}
+    for i,r in data.iterrows():
+        key=r["region"]
+        if key not in dicts:
+            dicts[key]={}
+        if r[colName] not in dicts[key]:
+            dicts[key][r[colName]]=1
+        else:
+            dicts[key][r[colName]]+=1
+    return dicts
 
 
 '''
@@ -263,16 +340,31 @@ def scatterPlot(xValues, yValues, labels, title):
 # This code runs the test cases to check your work
 if __name__ == "__main__":
     print("\n" + "#"*15 + " WEEK 1 TESTS " +  "#" * 16 + "\n")
-    test.week1Tests()
+    #test.week1Tests()
     print("\n" + "#"*15 + " WEEK 1 OUTPUT " + "#" * 15 + "\n")
-    test.runWeek1()
-
+    #test.runWeek1()
+    # test.testParseName()
+    # test.testParsePosition()
+    # test.testParseState()
+    #test.testFindHashtags()
+    # test.testGetRegionFromState()
+    #test.testAddColumns()
     ## Uncomment these for Week 2 ##
     """print("\n" + "#"*15 + " WEEK 2 TESTS " +  "#" * 16 + "\n")
     test.week2Tests()
     print("\n" + "#"*15 + " WEEK 2 OUTPUT " + "#" * 15 + "\n")
     test.runWeek2()"""
-
+    #test.week2Tests()
+    #test.testFindSentiment()
+    #test.testAddSentimentColumn()
+    
+    df = makeDataFrame("data/politicaldata.csv")
+    stateDf = makeDataFrame("data/statemappings.csv")
+    addColumns(df, stateDf)
+    addSentimentColumn(df)
+    #test.testGetDataCountByState(df)
+    test.testGetDataForRegion(df)
+    
     ## Uncomment these for Week 3 ##
     """print("\n" + "#"*15 + " WEEK 3 OUTPUT " + "#" * 15 + "\n")
     test.runWeek3()"""
