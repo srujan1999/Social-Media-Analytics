@@ -86,16 +86,16 @@ def findHashtags(message):
     # import re
     # return re.findall(r'#\w+', message)
     new=message.split("#")
-    s=""
     l1=[]
     for i in new[1:]:
+        s=""
         for j in i:
             if j not in endChars:
                 s+=j
             else:
                 break
         l1.append('#'+s)
-        s=""
+
     return l1
 
 
@@ -117,6 +117,23 @@ Parameters: dataframe ; dataframe
 Returns: None
 '''
 def addColumns(data, stateDf):
+    names=[]
+    positions=[]
+    states=[]
+    regions=[]
+    hashtags=[]
+    for i,r in data.iterrows():
+        names.append(parseName(r["label"]))
+        positions.append(parsePosition(r["label"]))
+        states.append(parseState(r["label"]))
+        regions.append(getRegionFromState(stateDf, parseState(r["label"])))
+        hashtags.append(findHashtags(r["text"]))
+    data['name']=names
+    data['position']=positions
+    data['state']=states
+    data['region']=regions
+    data['hashtags']=hashtags
+
     return
 
 
@@ -302,7 +319,8 @@ if __name__ == "__main__":
     # test.testParsePosition()
     # test.testParseState()
     #test.testFindHashtags()
-    test.testGetRegionFromState()
+    # test.testGetRegionFromState()
+    test.testAddColumns()
     ## Uncomment these for Week 2 ##
     """print("\n" + "#"*15 + " WEEK 2 TESTS " +  "#" * 16 + "\n")
     test.week2Tests()
