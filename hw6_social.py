@@ -163,9 +163,7 @@ Returns: None
 '''
 def addSentimentColumn(data):
     classifier = SentimentIntensityAnalyzer()
-    sen=[]
-    for i,r in data.iterrows():
-        sen.append(findSentiment(classifier, r["text"]))
+    sen=[findSentiment(classifier, r["text"]) for i,r in data.iterrows()]
     data['sentiment']=sen
     return
 
@@ -178,9 +176,18 @@ Returns: dict mapping strs to ints
 '''
 def getDataCountByState(data, colName, dataToCount):
     dicts={}
-    for i,j in data.iterrows():
-        state=parseState(j["label"])
-    return
+    if len(colName)!=0 and len(dataToCount)!=0:
+        for i,r in data.iterrows():
+            if r[colName]==dataToCount:
+                if r["state"] not in dicts:
+                    dicts[r["state"]]=0
+                dicts[r["state"]]+=1
+    if len(colName)==0 or len(dataToCount)==0:
+        for i,r in data.iterrows():
+            if r["state"] not in dicts:
+                dicts[r["state"]]=0
+            dicts[r["state"]]+=1
+    return dicts
 
 
 '''
