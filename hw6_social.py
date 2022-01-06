@@ -197,7 +197,16 @@ Parameters: dataframe ; str
 Returns: dict mapping strs to (dicts mapping strs to ints)
 '''
 def getDataForRegion(data, colName):
-    return
+    dicts={}
+    for i,r in data.iterrows():
+        key=r["region"]
+        if key not in dicts:
+            dicts[key]={}
+        if r[colName] not in dicts[key]:
+            dicts[key][r[colName]]=1
+        else:
+            dicts[key][r[colName]]+=1
+    return dicts
 
 
 '''
@@ -353,7 +362,8 @@ if __name__ == "__main__":
     stateDf = makeDataFrame("data/statemappings.csv")
     addColumns(df, stateDf)
     addSentimentColumn(df)
-    test.testGetDataCountByState(df)
+    #test.testGetDataCountByState(df)
+    test.testGetDataForRegion(df)
     
     ## Uncomment these for Week 3 ##
     """print("\n" + "#"*15 + " WEEK 3 OUTPUT " + "#" * 15 + "\n")
