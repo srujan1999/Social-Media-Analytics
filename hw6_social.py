@@ -276,6 +276,7 @@ def graphStateCounts(stateCounts, title):
     plt.xticks(ticks=list(range(len(state))), labels=state, rotation="vertical")
     plt.xlabel("States")
     plt.ylabel("Values of states")
+    plt.title(title)
     plt.show()
     
     return 
@@ -288,6 +289,7 @@ Parameters: dict mapping strs to ints ; dict mapping strs to ints ; int ; str
 Returns: None
 '''
 def graphTopNStates(stateCounts, stateFeatureCounts, n, title):
+
     return
 
 
