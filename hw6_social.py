@@ -342,7 +342,7 @@ def graphHashtagSentimentByFrequency(data):
         hashlst.append(hashtag)
         freqlst.append(top50[hashtag])
         sentilst.append(getHashtagSentiment(data, hashtag))
-    sideBySideBarPlots(freqlst,sentilst,hashlst,"Top 50 Hastags v/s Sentiment")
+    scatterPlot(freqlst,sentilst,hashlst,"Top 50 Hastags v/s Sentiment")
     return
 
 
